@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven = 'Maven_3.9.11'
+        maven = 'mvn'
     }
     
     environment {
@@ -13,21 +13,21 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests'
+                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests'
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker-compose build'
+                bat 'docker-compose build'
             }
         }
 
         stage('Deploy Local') {
             steps {
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+            bat 'docker-compose down'
+            bat 'docker-compose up -d'
             }
         }
     }
