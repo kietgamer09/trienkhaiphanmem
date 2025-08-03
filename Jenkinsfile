@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        maven = 'Maven_3.9.11'
+    }
+    
     environment {
         IMAGE_TAG = "latest"
     }
@@ -9,21 +13,21 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests'
+                    sh 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests'
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker-compose build'
+                sh 'docker-compose build'
             }
         }
 
         stage('Deploy Local') {
             steps {
-                bat 'docker-compose down'
-                bat 'docker-compose up -d'
+                sh 'docker-compose down'
+                sh 'docker-compose up -d'
             }
         }
     }
