@@ -1,47 +1,51 @@
 pipeline {
     agent any
+
     tools {
-        maven 'Maven-3.9.11' // Sử dụng Maven đã cài thủ công
+        maven 'Maven-3.9.11'
     }
+
     environment {
         IMAGE_TAG = "latest"
-        SONAR_HOST_URL = "http://localhost:9000" // Thay bằng URL SonarQube của bạn
-        SONAR_LOGIN = credentials('sonar-token') // ID token SonarQube trong Jenkins
     }
+
     stages {
-        stage('Checkout') {
+        stage('Docker Network & SonarQube Start') {
             steps {
-                git branch: 'main', url: 'https://github.com/kietgamer09/trienkhaiphanmem.git', credentialsId: '8d2fff40-4c3e-406c-bcfd-5232f3b6b4b8'
+                bat 'docker network create fintrack-net || echo network exists'
+
+                bat 'docker-compose up -d sonarqube'
+
+                bat 'ping 127.0.0.1 -n 60 >nul'
             }
         }
-        stage('Reset Build Status') {
-            steps {
-                bat 'if exist "be-fintrack-master\\target" rmdir /s /q "be-fintrack-master\\target"'
-                bat 'del /s /q "be-fintrack-master\\.mvn\\watcher.log" 2>nul'
-                bat 'mvn -f be-fintrack-master/pom.xml clean --no-snapshot-updates --fail-never'
-            }
-        }
+
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    // Thêm sonar.projectKey để xác định dự án trong SonarQube
-                    bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public -Dsonar.projectKey=be-fintrack -Dsonar.login=${SONAR_LOGIN}'
-                }
-                // Chờ Quality Gate sau khi phân tích hoàn tất
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dsonar.token=squ_dcd86e3c448e482c0f0c5a42673e709aced3aa00'
                 }
             }
         }
+
+        stage('Quality Gate') {
+            steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+
         stage('Docker Build') {
             steps {
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml build'
+                bat 'docker-compose build'
             }
         }
+
         stage('Deploy Local') {
             steps {
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml down'
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml up -d'
+                bat 'docker-compose down'
+                bat 'docker-compose up -d'
             }
         }
     }
