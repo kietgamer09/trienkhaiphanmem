@@ -5,6 +5,8 @@ pipeline {
     }
     environment {
         IMAGE_TAG = "latest"
+        SONAR_HOST_URL = "http://localhost:9000" // Thay bằng URL SonarQube của bạn
+        SONAR_LOGIN = credentials('sonar-token') // ID token SonarQube trong Jenkins
     }
     stages {
         stage('Checkout') {
@@ -23,6 +25,9 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public'
+                }
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
