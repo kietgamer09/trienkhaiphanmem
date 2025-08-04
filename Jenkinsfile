@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.11' // Đảm bảo tên khớp với Global Tool Configuration
+        maven 'Maven-3.9.11' // Sử dụng Maven đã giải nén
     }
     environment {
         IMAGE_TAG = "latest"
@@ -13,14 +13,15 @@ pipeline {
             }
         }
         stage('Reset Build Status') {
-    steps {
-        bat 'mvn -f be-fintrack-master/pom.xml clean --no-snapshot-updates --fail-never'
-    }
-}
+            steps {
+                bat 'if exist be-fintrack-master/target rmdir /s /q be-fintrack-master/target'
+                bat 'mvn -f be-fintrack-master/pom.xml clean --no-snapshot-updates --fail-never'
+            }
+        }
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public'
+                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dmaven.wagon.http.ssl.insecure=true -DrepositoryUrl=https://maven.aliyun.com/repository/public'
                 }
             }
         }
