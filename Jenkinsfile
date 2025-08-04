@@ -1,10 +1,9 @@
 pipeline {
     agent any
-
     tools {
-        maven = 'mvn'
+        maven 'Maven-3.9.6' // Tên phải khớp với tên trong Global Tool Configuration
     }
-    
+
     environment {
         IMAGE_TAG = "latest"
     }
