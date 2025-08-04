@@ -24,11 +24,11 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    // Chạy phân tích SonarQube
-                    bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public'
+                    // Thêm sonar.projectKey để xác định dự án trong SonarQube
+                    bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public -Dsonar.projectKey=be-fintrack -Dsonar.login=${SONAR_LOGIN}'
                 }
                 // Chờ Quality Gate sau khi phân tích hoàn tất
-                timeout(time: 2, unit: 'MINUTES') { // Tăng timeout để chắc chắn
+                timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
