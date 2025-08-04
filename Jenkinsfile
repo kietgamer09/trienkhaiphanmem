@@ -1,12 +1,12 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.11'
+        maven 'Maven-3.9.11' // Sử dụng Maven đã cài thủ công
     }
     environment {
         IMAGE_TAG = "latest"
-        SONAR_HOST_URL = "http://localhost:9000"
-        SONAR_LOGIN = credentials('sonar-token')
+        SONAR_HOST_URL = "http://localhost:9000" // Thay bằng URL SonarQube của bạn
+        SONAR_LOGIN = credentials('sonar-token') // ID token SonarQube trong Jenkins
     }
     stages {
         stage('Checkout') {
@@ -24,10 +24,12 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
+                    // Chạy phân tích SonarQube
                     bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public'
-                    timeout(time: 1, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
+                }
+                // Chờ Quality Gate sau khi phân tích hoàn tất
+                timeout(time: 2, unit: 'MINUTES') { // Tăng timeout để chắc chắn
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
