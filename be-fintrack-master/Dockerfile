@@ -1,12 +1,18 @@
 # build stage
-FROM maven:3.8.5-openjdk-17 AS build
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+# Use an official OpenJDK runtime as a parent image
+FROM maven:3.9.11-eclipse-temurin-17 AS build
 
-# run stage
+# Set working directory
+WORKDIR /app
+
+# Copy the project files
+COPY . .
+
+# Build the application with Maven, using a mirror to avoid connection issues
+RUN mvn clean package -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public
+
+# Run stage
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 5000
+COPY --from=build /app/target/be-fintrack-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
