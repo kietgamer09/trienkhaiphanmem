@@ -28,7 +28,7 @@ pipeline {
                     bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dsonar.token=squ_dcd86e3c448e482c0f0c5a42673e709aced3aa00'
                 }
                 // Chờ Quality Gate sau khi phân tích hoàn tất
-                timeout(time: 2, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
