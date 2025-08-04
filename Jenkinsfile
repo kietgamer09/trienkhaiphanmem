@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.11' // Sử dụng Maven đã giải nén
+        maven 'Maven-3.9.11' // Sử dụng Maven đã cài thủ công
     }
     environment {
         IMAGE_TAG = "latest"
@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Reset Build Status') {
             steps {
-                bat 'if exist be-fintrack-master/target rmdir /s /q be-fintrack-master/target'
+                bat 'if exist "be-fintrack-master\\target" rmdir /s /q "be-fintrack-master\\target"'
                 bat 'mvn -f be-fintrack-master/pom.xml clean --no-snapshot-updates --fail-never'
             }
         }
