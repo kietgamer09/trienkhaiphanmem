@@ -22,13 +22,13 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -Dmaven.repo.remote=https://maven.aliyun.com/repository/public'
+                    bat 'mvn -f be-fintrack-master/pom.xml clean install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public -DrepositoryUrl=https://maven.aliyun.com/repository/public'
                 }
             }
         }
         stage('Docker Build') {
             steps {
-                bat 'docker-compose build'
+                bat 'docker-compose -f be-fintrack-master/docker-compose.yml build'
             }
         }
         stage('Deploy Local') {
