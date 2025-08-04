@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9.6' // Tên phải khớp với tên trong Global Tool Configuration
+        maven 'Maven-3.9.11' // Tên phải khớp với tên trong Global Tool Configuration
     }
 
     environment {
