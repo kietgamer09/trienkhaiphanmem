@@ -1,5 +1,4 @@
-# build stage
-# Use an official OpenJDK runtime as a parent image
+# Use an official OpenJDK runtime with Maven as a parent image
 FROM maven:3.9.11-eclipse-temurin-17 AS build
 
 # Set working directory
@@ -8,8 +7,11 @@ WORKDIR /app
 # Copy the project files
 COPY . .
 
-# Build the application with Maven, using a mirror to avoid connection issues
-RUN mvn clean package -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public
+# Add settings.xml with mirror configuration
+COPY settings.xml /root/.m2/
+
+# Build the application with Maven, using mirror
+RUN mvn clean package -DskipTests -Dmaven.wagon.http.ssl.insecure=true -DrepositoryUrl=https://maven.aliyun.com/repository/public
 
 # Run stage
 FROM openjdk:17-jdk-slim
