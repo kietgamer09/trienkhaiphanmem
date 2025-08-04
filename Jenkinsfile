@@ -7,6 +7,11 @@ pipeline {
         IMAGE_TAG = "latest"
     }
     stages {
+        stage('Reset Build Status') {
+            steps {
+                bat 'mvn --no-snapshot-updates'
+            }
+        }
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
