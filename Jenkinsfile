@@ -12,7 +12,7 @@ pipeline {
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests'
+                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dmaven.repo.remote=https://maven.aliyun.com/repository/public'
                 }
             }
         }
