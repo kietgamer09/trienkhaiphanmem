@@ -13,14 +13,14 @@ pipeline {
             }
         }
         stage('Reset Build Status') {
-            steps {
-                bat 'mvn -f be-fintrack-master/pom.xml validate --no-snapshot-updates' // Sửa lệnh
-            }
-        }
+    steps {
+        bat 'mvn -f be-fintrack-master/pom.xml clean --no-snapshot-updates --fail-never'
+    }
+}
         stage('Code Analysis - SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.repo.remote=https://maven.aliyun.com/repository/public'
+                    bat 'mvn -f be-fintrack-master/pom.xml clean verify sonar:sonar -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.central.mirror=https://maven.aliyun.com/repository/public'
                 }
             }
         }
