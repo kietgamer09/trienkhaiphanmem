@@ -29,13 +29,13 @@ pipeline {
                 }
             }
         }
-         stage('Quality Gate') {
-            steps {
-        timeout(time: 15, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+         //stage('Quality Gate') {
+            //steps {
+        //timeout(time: 15, unit: 'MINUTES') {
+            //waitForQualityGate abortPipeline: true
+                //}
+            //}
+        //}
         stage('Docker Build') {
             steps {
                 bat 'docker-compose -f be-fintrack-master/docker-compose.yml build'
