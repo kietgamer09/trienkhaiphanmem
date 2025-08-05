@@ -1,11 +1,18 @@
+version: '3.8'
 services:
   backend:
     build: ./be-fintrack-master
     container_name: backend
     ports:
       - "5000:5000"
+    volumes:
+      - ./be-fintrack-master:/app
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - fintrack-net
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -15,28 +22,58 @@ services:
     container_name: frontend
     ports:
       - "3000:80"
+    volumes:
+      - ./fe-fintrack-master:/app
     depends_on:
       - backend
     networks:
       - fintrack-net
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.52.0
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
     networks:
       - fintrack-net
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:10.2.2
     container_name: grafana
     ports:
       - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - fintrack-net
 
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_DB: fintrack
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - fintrack-net
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  pgdata:
+
 networks:
   fintrack-net:
+    driver: bridge
