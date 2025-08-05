@@ -38,13 +38,13 @@ pipeline {
         //}
         stage('Docker Build') {
             steps {
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml build'
+                bat 'docker-compose build'
             }
         }
         stage('Deploy Local') {
             steps {
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml down'
-                bat 'docker-compose -f be-fintrack-master/docker-compose.yml up -d'
+                bat 'docker-compose down'
+                bat 'docker-compose up -d'
             }
         }
     }
